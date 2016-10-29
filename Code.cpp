@@ -10,6 +10,8 @@ string ConvertCode(string str);
 int Base2Decimal(string str);
 string Decimal2Base (int num);
 char NumToChar (int num);
+string ConvertMessage(string str);
+int CharToNum(char car);
 
 const int ARRAYMAX = 62;
 const int ASCIIAValue = 65;
@@ -32,6 +34,8 @@ int main()
 	//populate the Value Table
 	populateCharValue();
 	
+	
+	
 	while(userAction != "end")
 	{
 		cout << "What do you want to do?" << endl << "\tSettings (settings)\n\tConvert Code (code)\n\tConvert Message (message)\n\tEnd Program (end)"<<endl;
@@ -40,27 +44,34 @@ int main()
 		
 		if(userAction == "settings")
 		{
-			attempts = 0;
+			attempts = 0;//If the user starts using the program I don't want to knock them down for any typos.
 			Settings();
 		}else if(userAction == "code")
 		{
+			attempts = 0;
 			cout << "You are going to convert a code in base "<< base << " into a message." << endl << "Please enter the code below: ";
-			attempts =0;
-			cin.ignore(1000, '\n');
+			cin.ignore(1000, '\n');//Without this statement the user wasn't able to type their response
 			getline (cin,input);
 			
 			result = ConvertCode(input);
 
-			cout << endl << endl << result << endl << endl;
+			cout << endl << endl << result << endl << endl;//This used to be at the end but I think I might have it be posted into a text editor instead of to the console.
 		}else if(userAction == "message")
 		{
 			attempts =0;
+			cout << "You are going to convert a message into a code in base " << base << "." <<endl <<"Please enter the message below: "<<endl;
+			cin.ignore(1000, '\n');
+			getline (cin,input);
+			result = ConvertMessage(input);
+			
+			cout << endl <<endl <<result << endl << endl;
+			
 		}else if(userAction == "end")
 		{
-			attempts =0;
+			
 		}else//User puts in some other option not mentioned (Only get 5 attempts before program ends)
 		{
-			if (attempts > 5)
+			if (attempts == 5)
 			{
 				userAction = "end";
 			}else
@@ -73,6 +84,20 @@ int main()
 	
 return 0;
 
+}
+
+string ConvertMessage(string str)
+{
+	string code = "";
+	char working = ' ';
+	string base = "";
+	for (int i = 0; i < str.length(); i++)
+	{
+		working = str.at(i);
+		base = Decimal2Base(CharToNum(working));
+		code = code + base + " ";
+	}
+	return code;
 }
 
 string ConvertCode(string str)
@@ -98,10 +123,19 @@ string ConvertCode(string str)
 	return message;
 }
 
+int CharToNum (char car)//Right now this just returns the ASCII value for the char, but if I want to make it so that users can change what value a character is I need this function.
+{
+	int num =0;
+	
+	num = car;
+	
+	return num;
+}
+
 char NumToChar (int num)
 {
 	char car = ' ';
-	if (num < 32 || num > 126)
+	if (num < 32 || num > 126) //These numbers are chosen based on the ASCII value table. I do not want to mess with any complicated whitespace values nor do I want to work with values that aren't even in the ASCII table.
 	{
 		car = ' ';
 	} else
