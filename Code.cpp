@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <math.h>
+#include <fstream>
 using namespace std;
 
 
@@ -28,6 +29,8 @@ const int MAXBASE = ARRAYMAX+1;
 char baseValues[ARRAYMAX];
 int charArray[95];//For userdefined values of A-Z a-z space numbers and punctuation symbols (So we won't use ASCII values)
 int base = 16;
+bool useFile = true;
+string fileName = "code.txt";
 
 
 int main()
@@ -40,6 +43,9 @@ int main()
 	//populate Tables
 	populateBaseValues();
 	populateCharArray();
+	
+	fstream file;
+	file.open (fileName, ios::app | ios::out|ios::in);
 	
 	
 	while(userAction != "end")
@@ -55,13 +61,29 @@ int main()
 		}else if(userAction == "code")
 		{
 			attempts = 0;
-			cout << "You are going to convert a code in base "<< base << " into a message." << endl << "Please enter the code below: ";
+			cout << "You are going to convert a code in base "<< base << " into a message." << endl;
+			if(!useFile | !file.is_open())
+			{
+			cout << "Please enter the code below: ";
 			cin.ignore(1000, '\n');//Without this statement the user wasn't able to type their response
 			getline (cin,input);
-			
 			result = ConvertCode(input);
+			cout << endl<<result<<endl<<endl;
+			}else
+			{
+				file.clear();
+				file.seekg(0, ios::beg);
+				while(getline(file,input))
+				{
+					if(input != "")
+					{
+						result = ConvertCode(input);
+						cout << endl << result << endl;
+					}
+				}
+			}
 
-			cout << endl << endl << result << endl << endl;//This used to be at the end but I think I might have it be posted into a text editor instead of to the console.
+
 		}else if(userAction == "message")
 		{
 			attempts =0;
@@ -69,8 +91,15 @@ int main()
 			cin.ignore(1000, '\n');
 			getline (cin,input);
 			result = ConvertMessage(input);
-			
-			cout << endl <<endl <<result << endl << endl;
+			file.clear();
+			if(file.is_open())
+			{
+				file << result << endl<<endl;
+			}else
+			{
+				cout << "Cannot open file, results displayed: "<<endl;
+				cout << result << endl<<endl;
+			}
 			
 		}else if(userAction == "end")
 		{
@@ -88,7 +117,8 @@ int main()
 		}
 	}
 	
-return 0;
+	file.close();
+	return 0;
 
 }
 
@@ -163,7 +193,6 @@ char NumToChar (int num)
 	}
 	if (!found)
 	{
-		cout << num << " doesn't correspond to any character value.";
 		car = 254;
 	}
 	return car;
@@ -174,7 +203,7 @@ void Settings()//Change the base to work in (Might change this function if I thi
 	string userAction = "";
 	while (userAction != "end")
 	{
-		cout << "\t\tChange Base (base)\n\t\tChange Char Values (char)\n\t\tMore Information (info)\n\t\tCancel change Settings (end)"<<endl;
+		cout << "\t\tChange Base (base)\n\t\tChange Char Values (char)\n\t\tMore Information (info)\n\t\tUse File (file)\n\t\tCancel change Settings (end)"<<endl;
 		cin >> userAction;
 		if(userAction == "base")
 		{
@@ -227,6 +256,30 @@ void Settings()//Change the base to work in (Might change this function if I thi
 		}else if(userAction == "info")
 		{
 			cout << "Changing the base can affect how your message is encoded and how your code is decoded. Common bases are binary (2), octal (8), and hexadecimal (16). We commonly think in base 10 which is our normal counting system. You can choose any base up to 63." << endl <<endl <<"For more advanced users you can edit the character values. By default the character values follow the ASCII table, i.e space is 32 A is 65. I only allow up to ASCII character 126. But if you are so inclined you can change the character values and make any of the ASCII characters from 32 to 126 equal to any real positive integer. It is recommended to keep to values in sequential order and have no repeating numbers when you edit these values. You have been warned."<<endl;
+		}else if(userAction=="file")
+		{
+			cout << "Change file name (name)\nUse file for decoding (code)\nGo back (back)\nExit Settings (end)";
+			cin >> userAction;
+			if(userAction=="name")
+			{
+				cout << "Be sure to include the file extension (name.txt)";
+				cin >> fileName;
+			}else if(userAction=="code")
+			{
+				cout << "Currently using the file "<< fileName << " for decoding is "<< useFile << "\nType true or false to change this value.";
+				cin >> userAction;
+				if(userAction=="true")
+				{
+					useFile=true;
+					userAction="back";
+				}else{
+					useFile=false;
+					userAction="back";
+				}
+			}else
+				{	
+				}
+		
 		}else if(userAction=="end")
 		{
 			
